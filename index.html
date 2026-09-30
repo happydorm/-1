@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>한국사학진흥재단 원리금 상환 관리</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="brand">한국사학진흥재단</div>
+    <h1>원리금 상환 관리</h1>
+  </div>
+  <button class="ghost" id="resetAll">초기화</button>
+</header>
+
+<main class="wrap">
+  <section class="dashboard">
+    <div class="stat"><span>등록 기숙사</span><strong id="statDorms">0</strong><small>브라우저 저장 기준</small></div>
+    <div class="stat"><span>총 배정금액</span><strong id="statPrincipal">0원</strong><small>등록 자료 합계</small></div>
+    <div class="stat"><span>총 잔여원금</span><strong id="statBalance">0원</strong><small>최근 계산 결과 기준</small></div>
+    <div class="stat"><span>예정 상환액</span><strong id="statUpcoming">0원</strong><small>다음 상환회차</small></div>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="calc">원리금 계산</button>
+    <button class="tab" data-tab="schedule">상환 계획표</button>
+    <button class="tab" data-tab="history">기숙사·이력 관리</button>
+  </nav>
+
+  <section id="calc" class="panel active">
+    <div class="panel-head">
+      <div><h2>원리금 조건 입력</h2><p>조건을 입력하면 회차별 상환계획을 자동 산출합니다.</p></div>
+      <span class="badge">1차 버전 · GitHub Pages</span>
+    </div>
+
+    <form id="loanForm" class="form-grid">
+      <label>기숙사명<input id="dormName" required placeholder="예: ○○ 행복기숙사"></label>
+      <label>차입금 재원
+        <select id="fund">
+          <option>공공자금관리기금</option>
+          <option>주택도시기금</option>
+        </select>
+      </label>
+      <label>배정금액(원)<input id="principal" type="number" min="1" step="1" required placeholder="1000000000"></label>
+      <label>금리(%)<input id="rate" type="number" min="0" step="0.0001" required placeholder="3.50"></label>
+      <label>금리유형
+        <select id="rateType"><option>고정금리</option><option>변동금리</option></select>
+      </label>
+      <label>상환주기
+        <select id="frequency"><option value="4">분기</option><option value="2">반기</option></select>
+      </label>
+      <label>거치 시작일<input id="graceStart" type="date" required></label>
+      <label>거치 종료일<input id="graceEnd" type="date" required></label>
+      <label>원금상환 시작일<input id="repayStart" type="date" required></label>
+      <label>상환기간(년)<input id="years" type="number" min="1" step="1" required value="10"></label>
+      <label>상환 유형
+        <select id="method"><option value="equal-principal">원금 균등방식</option><option value="equal-payment">원리금 균등방식</option></select>
+      </label>
+      <label>변동금리 시작일<span class="optional">변동금리 선택 시</span><input id="changeStart" type="date"></label>
+      <label class="wide">변동주기<span class="optional">변동금리 선택 시</span>
+        <div class="inline"><input id="changeEvery" type="number" min="1" value="7"><select id="changeUnit"><option value="year">년</option><option value="month">개월</option></select></div>
+      </label>
+      <div class="wide actions">
+        <button class="primary" type="submit">원리금 테이블 산출</button>
+        <button class="secondary" type="button" id="saveOnly">조건 저장</button>
+      </div>
+    </form>
+    <div id="error" class="error hidden"></div>
+  </section>
+
+  <section id="schedule" class="panel">
+    <div class="panel-head">
+      <div><h2>상환 계획표</h2><p id="resultSummary">계산 결과가 여기에 표시됩니다.</p></div>
+      <div class="actions compact"><button class="secondary" id="downloadXlsx">Excel 다운로드</button><button class="secondary" id="print">인쇄</button></div>
+    </div>
+    <div class="summary-grid">
+      <div><span>총 원금상환</span><strong id="sumPrincipal">0원</strong></div>
+      <div><span>총 이자</span><strong id="sumInterest">0원</strong></div>
+      <div><span>총 원리금</span><strong id="sumPayment">0원</strong></div>
+      <div><span>최종 잔액</span><strong id="finalBalance">0원</strong></div>
+    </div>
+    <div class="table-wrap"><table id="scheduleTable"><thead><tr>
+      <th>회차</th><th>상환일</th><th>이자계산일수</th><th>적용금리</th><th>원금상환액</th><th>이자상환액</th><th>원리금상환액</th><th>잔액</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="history" class="panel">
+    <div class="panel-head"><div><h2>기숙사·이력 관리</h2><p>서버 DB가 아닌 현재 브라우저의 localStorage에 저장됩니다.</p></div></div>
+    <div id="historyList" class="history-list"></div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
